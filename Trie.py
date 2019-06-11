@@ -26,12 +26,11 @@ class Trie:
         else:
             return node.end
 
-    def startsWith(self, prefix):
+    def starts_with(self, prefix):
         node = self.prefixnode(prefix)
         return bool(node)
-
 
 # obj = Trie()
 # obj.insert(word)
 # obj.search(word)
-# obj.startsWith(prefix)
+# obj.starts_with(prefix)
