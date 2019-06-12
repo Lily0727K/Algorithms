@@ -532,36 +532,6 @@ def union_find():
     print(par[1:].count(-1))
 
 
-class UnionFind:
-    # UnionFind実装。ランク付き、経路短縮付き。
-    def __init__(self, num):
-        self.rank = [0] * num
-        self.par = [i for i in range(num)]
-        self.n = num
-
-    def find_root(self, node):
-        if self.par[node] == node:
-            return node
-        else:
-            self.par[node] = self.find_root(self.par[node])
-            return self.par[node]
-
-    def same_root(self, x, y):
-        return self.find_root(x) == self.find_root(y)
-
-    def union(self, x, y):
-        x = self.find_root(x)
-        y = self.find_root(y)
-        if x == y:
-            return
-        if self.rank[x] > self.rank[y]:
-            self.par[y] = x
-        else:
-            self.par[x] = y
-            if self.rank[x] == self.rank[y]:
-                self.rank[y] += 1
-
-
 def fft():
     # aとbの畳み込み。c_k = \sum_{i=0}^k a_i b_{k-i}
     n = int(input())
@@ -804,88 +774,26 @@ def longest_increasing_sequence(arr):
     print(len(dp))
 
 
-class BIT:
-    # binary indexed tree
-    # 部分和と要素の更新のクエリを行う木構造 log(n)で処理できる
-    def __init__(self, n):
-        self.n = n
-        self.data = [0] * (n + 1)
-        self.el = [0] * (n + 1)
-
-    def sum(self, i):
-        s = 0
-        while i > 0:
-            s += self.data[i]
-            i -= i & -i
-        return s
-
-    def add(self, i, x):
-        self.el[i] += x
-        while i <= self.n:
-            self.data[i] += x
-            i += i & -i
-
-    def get(self, i, j=None):
-        if j is None:
-            return self.el[i]
-        return self.sum(j) - self.sum(i)
-
-
-class Dijkstra:
-    def __init__(self):
-        self.e = defaultdict(list)
-
-    def add(self, u, v, d, directed=False):
-        if directed is False:
-            self.e[u].append([v, d])
-            self.e[v].append([u, d])
-        else:
-            self.e[u].append([v, d])
-
-    def delete(self, u, v):
-        self.e[u] = [_ for _ in self.e[u] if _[0] != v]
-        self.e[v] = [_ for _ in self.e[v] if _[0] != u]
-
-    def search(self, s):
-        d = defaultdict(lambda: float('inf'))
-        d[s] = 0
-        q = []
-        heapq.heappush(q, (0, s))
-        v = defaultdict(bool)
-        while len(q):
-            k, u = heapq.heappop(q)
-            if v[u]:
-                continue
-            for uv, ud in self.e[u]:
-                if v[uv]:
-                    continue
-                vd = k + ud
-                if d[uv] > vd:
-                    d[uv] = vd
-                    heapq.heappush(q, (vd, uv))
-        return d
-
-
-class kth_largest:
-    # k番目に大きい数を常に返すヒープ
-    def __init__(self, k, nums):
-        self.nums = nums
-        self.k = k
-        heapq.heapify(self.nums)
-        while len(self.nums) > k:
-            heapq.heappop(self.nums)
-
-    def add(self, val):
-        if len(self.nums) < self.k:
-            heapq.heappush(self.nums, val)
-        elif val > self.nums[0]:
-            heapq.heapreplace(self.nums, val)
-        return self.nums[0]
-
-
 def word_break(s, words):
     # wordsの組み合わせでsが作れるかどうか
     ok = [True]
     for i in range(1, len(s)+1):
         ok += any(ok[j] and s[j:i] in words for j in range(i)),
     return ok[-1]
+
+
+def max_area_of_island(grid):
+    # 0と1で構成されるgridで連結している最大の面積
+    height = len(grid)
+    width = len(grid[0])
+    seen = set()
+    drc = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+
+    def area(r, c):
+        if 0 <= r < height and 0 <= c < width and (r, c) not in seen and grid[r][c]:
+            seen.add((r, c))
+            return 1 + sum(area(r+dr, c+dc) for dr, dc in drc)
+        else:
+            return 0
+
+    return max(area(r, c) for r in range(height) for c in range(width))
