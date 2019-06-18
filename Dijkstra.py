@@ -1,33 +1,32 @@
+from collections import defaultdict
+from heapq import heappop, heappush
+
+
 class Dijkstra:
     def __init__(self):
-        self.e = defaultdict(list)
+        self.edge = defaultdict(list)
 
-    def add(self, u, v, d, directed=False):
-        if directed is False:
-            self.e[u].append([v, d])
-            self.e[v].append([u, d])
-        else:
-            self.e[u].append([v, d])
+    def add(self, u, v, d):
+        self.edge[u].append([v, d])
+        self.edge[v].append([u, d])
 
-    def delete(self, u, v):
-        self.e[u] = [_ for _ in self.e[u] if _[0] != v]
-        self.e[v] = [_ for _ in self.e[v] if _[0] != u]
-
-    def search(self, s):
-        d = defaultdict(lambda: float('inf'))
-        d[s] = 0
-        q = []
-        heapq.heappush(q, (0, s))
-        v = defaultdict(bool)
-        while len(q):
-            k, u = heapq.heappop(q)
-            if v[u]:
+    def search(self, start):
+        distance = defaultdict(lambda: float("inf"))
+        distance[start] = 0
+        queue = []
+        heappush(queue, (0, start))
+        seen = set()
+        while queue:
+            k, u = heappop(queue)
+            if u in seen:
                 continue
-            for uv, ud in self.e[u]:
-                if v[uv]:
+            seen.add(u)
+
+            for v, d in self.edge[u]:
+                if v in seen:
                     continue
-                vd = k + ud
-                if d[uv] > vd:
-                    d[uv] = vd
-                    heapq.heappush(q, (vd, uv))
-        return d
+                new_d = k + d
+                if distance[v] > new_d:
+                    distance[v] = new_d
+                    heappush(queue, (new_d, v))
+        return distance

@@ -551,6 +551,31 @@ def heap_sort(arr):
     return [heapq.heappop(arr) for _ in range(len(arr))]
 
 
+def bubble_sort(arr):
+    n = len(arr)
+    flag = True
+    i = 0
+    while flag:
+        flag = False
+        for j in range(n - 1, 0, -1):
+            if arr[j] < arr[j - 1]:
+                arr[j], arr[j - 1] = arr[j - 1], arr[j]
+                flag = True
+        i += 1
+    return arr
+
+
+def selection_sort(arr):
+    n = len(arr)
+    for i in range(n):
+        minj = i
+        for j in range(i, n):
+            if arr[j] < arr[minj]:
+                minj = j
+        arr[i], arr[minj] = arr[minj], arr[i]
+    return arr
+
+
 def insert_sort(arr):
     n = len(arr)
     for i in range(1, n):
@@ -797,3 +822,18 @@ def max_area_of_island(grid):
             return 0
 
     return max(area(r, c) for r in range(height) for c in range(width))
+
+
+def is_power_of_two(n):
+    # 2のべき乗かどうか
+    return n > 0 and not (n & n-1)
+
+
+def coinChange(coins, amount):
+    # いくつかの種類のコインを使って、目標数を作る。
+    # 最低何枚で作ることができるか。作れない場合は-1を出力。
+    dp = [0] + [float('inf')] * amount
+    for coin in coins:
+        for i in range(coin, amount + 1):
+            dp[i] = min(dp[i], dp[i - coin] + 1)
+    return dp[-1] if dp[-1] != float("inf") else -1
