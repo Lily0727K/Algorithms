@@ -2,7 +2,6 @@ import sys
 import heapq
 import random
 import numpy as np
-from math import gcd
 from operator import mul, xor
 from functools import reduce
 from itertools import chain, permutations
@@ -150,9 +149,9 @@ def sum_pairs(ints, s):
             rest.add(s - num)
 
 
-def order_digit_sum(strng):
+def order_digit_sum(string):
     # スペースで区切られた文字列が与えられ、各桁を合計した値が少ない順に並べ替えて文字列として返す。同値の場合は辞書順。
-    data = list(strng.split())
+    data = list(string.split())
     data.sort(key=lambda x: (sum(map(int, x)), x))
     return " ".join(str(x) for x in data)
 
@@ -419,7 +418,7 @@ def contain(s1, s2):
     # 文章s1の単語を並び替えて文章s2を作ることができるか
     c1 = Counter(s1)
     c2 = Counter(s2)
-    return False if c2 - c1 else True
+    return c1 == c2
 
 
 def common_strings(s1, s2):
@@ -669,6 +668,8 @@ def factorial_mod(n, mod):
 
 
 def comb_mod(n, k, mod):
+    if k > n:
+        return 0
     fact_n = factorial_mod(n, mod)
     fact_k = factorial_mod(k, mod)
     fact_n_k = factorial_mod(n - k, mod)
@@ -788,7 +789,7 @@ def longest_path():
     print(ans)
 
 
-def longest_increasing_sequence(arr):
+def longest_increasing_subsequence_length(arr):
     # 最長増加列の長さ
     dp = [arr[0]]
     for i in arr[1:]:
@@ -796,7 +797,29 @@ def longest_increasing_sequence(arr):
             dp.append(i)
         else:
             dp[bisect_left(dp, i)] = i
-    print(len(dp))
+    return len(dp)
+
+
+def longest_increasing_subsequence(arr):
+    # 最長増加列のリスト
+    dp = [arr[0]]
+    dp_pos = [0]
+    cnt = 0
+    for i in arr[1:]:
+        if dp[-1] < i:
+            cnt += 1
+            dp.append(i)
+            dp_pos.append(cnt)
+        else:
+            idx = bisect_left(dp, i)
+            dp[idx] = i
+            dp_pos.append(idx)
+    res = []
+    for i in range(len(dp_pos))[::-1]:
+        if dp_pos[i] == cnt:
+            res.append(arr[i])
+            cnt -= 1
+    return res[::-1]
 
 
 def word_break(s, words):
@@ -829,7 +852,7 @@ def is_power_of_two(n):
     return n > 0 and not (n & n-1)
 
 
-def coinChange(coins, amount):
+def coin_change(coins, amount):
     # いくつかの種類のコインを使って、目標数を作る。
     # 最低何枚で作ることができるか。作れない場合は-1を出力。
     dp = [0] + [float('inf')] * amount
@@ -837,3 +860,43 @@ def coinChange(coins, amount):
         for i in range(coin, amount + 1):
             dp[i] = min(dp[i], dp[i - coin] + 1)
     return dp[-1] if dp[-1] != float("inf") else -1
+
+
+def get_sum(a, b):
+    # ビット演算でaとbの和を求める
+    max_lim = 2 ** 31 - 1
+    mask = 2 ** 32 - 1
+    while b != 0:
+        a, b = (a ^ b) & mask, ((a & b) << 1) & mask
+    return a if a <= max_lim else ~(a ^ mask)
+
+
+def gcd(a, b):
+    # 最大公約数
+    while b:
+        a, b = b, a % b
+    return a
+
+
+def topological_sort(words):
+    # 特定の辞書順に並んでいる単語のリストから文字の順番を返す
+    chars = set("".join(words))
+    degrees = {x: 0 for x in chars}
+    graph = defaultdict(list)
+    for pair in zip(words, words[1:]):
+        for x, y in zip(*pair):
+            if x != y:
+                if y not in graph[x]:
+                    graph[x].append(y)
+                    degrees[y] += 1
+                break
+
+    queue = [x for x in degrees.keys() if degrees[x] == 0]
+    res = ""
+    while queue:
+        x = queue.pop()
+        res += x
+        for n in graph[x]:
+            degrees[n] -= 1
+            if degrees[n] == 0:
+                queue.append(n)
