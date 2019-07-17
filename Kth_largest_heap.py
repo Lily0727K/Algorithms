@@ -1,3 +1,6 @@
+import heapq
+
+
 class kth_largest:
     # k番目に大きい数を常に返すヒープ
     def __init__(self, k, nums):
